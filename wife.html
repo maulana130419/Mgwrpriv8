@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo and Text Slideshow</title>
+    <style>
+        /* Dark theme */
+        body {
+            background-color: black;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Styling for the "BOOM!" text */
+        .boom {
+            font-size: 40px;
+            opacity: 0;
+        }
+
+        /* Keyframes for the explosion animation */
+        @keyframes explode {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(2); }
+            100% { opacity: 0; transform: scale(3); }
+        }
+
+        /* Apply the animation only when the 'active' class is present */
+        .boom.active {
+            animation: explode 1s linear forwards;
+        }
+
+        /* Full-screen photo */
+        .fullscreen-photo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        /* Keyframes for the photo fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Play button styling */
+        .play-button {
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 20px 40px; /* Increase padding for bigger size */
+            font-size: 24px; /* Increase font size for bigger size */
+            border-radius: 5px;
+            outline: none;
+            position: fixed; /* Position fixed for centering */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1; /* Ensure button is clickable */
+        }
+
+        /* Text slide styling */
+        .text-slide {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 36px;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        /* Darkened overlay for last message */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* Darken the background */
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: white;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        /* Styling for the last message paragraph */
+        .last-message {
+            padding: 20px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Play button -->
+    <button class="play-button" onclick="startAnimation()">Play</button>
+
+    <!-- Background audio -->
+    <audio id="background-audio">
+        <source src="https://maulana130419.github.io/Mgwrpriv8/1.MP3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- "BOOM!" text with explosion effect -->
+    <div class="boom">MELEEEDAKKKKK!!!</div>
+
+    <!-- Full-screen photo with explosion effect -->
+    <img class="fullscreen-photo" id="photo" src="https://maulana130419.github.io/Mgwrpriv8/IMG_20240506_173334.jpg" alt="Full Screen Photo">
+
+    <!-- Text slide -->
+    <div class="text-slide" id="textSlide">Welcome to the slideshow!</div>
+
+    <!-- JavaScript to play audio and show the photo and text after the explosion animation completes -->
+    <script>
+        var photos = [
+            "https://maulana130419.github.io/Mgwrpriv8/20240422_140425.jpg",
+            "https://maulana130419.github.io/Mgwrpriv8/img_4_1713747694639.jpg",
+            "https://maulana130419.github.io/Mgwrpriv8/img_3_1713747684376.jpg"
+        ];
+
+        var texts = [
+            "Thank you for standing by my side until now, with unwavering faith and endless happiness. You are my rock and my joy, and I cherish every moment with you."
+        ];
+
+        var currentPhotoIndex = 0;
+        var slideshowInterval;
+
+        function startAnimation() {
+            // Play background audio
+            var audio = document.getElementById("background-audio");
+            audio.play();
+
+            // Hide the play button
+            document.querySelector('.play-button').style.display = 'none';
+
+            // Show the "BOOM!" text
+            var boomText = document.querySelector('.boom');
+            boomText.style.opacity = '1';
+            boomText.classList.add('active'); // Add the 'active' class to trigger the animation
+
+            // Wait for the explosion animation to complete
+            setTimeout(function() {
+                // Show the first full-screen photo
+                document.querySelector('.fullscreen-photo').style.display = 'block';
+
+                // Show the text slide
+                var textSlide = document.getElementById('textSlide');
+                textSlide.innerText = texts[currentPhotoIndex];
+                fadeIn(textSlide);
+
+                startSlideshowInterval();
+            }, 1000); // Adjust the timeout to match the duration of the explosion animation
+        }
+
+        function startSlideshowInterval() {
+            // Start the slideshow interval
+            slideshowInterval = setInterval(function() {
+                var photo = document.getElementById("photo");
+                fadeOut(photo);
+                setTimeout(function() {
+                    if (currentPhotoIndex < photos.length - 1) {
+                        // If there are more photos to show
+                        currentPhotoIndex++;
+                        photo.src = photos[currentPhotoIndex];
+                        fadeIn(photo);
+                    } else {
+                        // If all photos have been shown, stop the slideshow and display the message
+                        clearInterval(slideshowInterval);
+                        setTimeout(function() {
+                            // Display the "I love you" message after 3 seconds
+                            var lastMessage = document.createElement('div');
+                            lastMessage.classList.add('overlay');
+                            var paragraph = document.createElement('p');
+                            paragraph.classList.add('last-message');
+                            lastMessage.appendChild(paragraph);
+                            document.body.appendChild(lastMessage);
+                            typeText("Thank you for journeying with me through life's ups and downs, for your unwavering faith, enduring love, and boundless happiness. Your presence is my strength, and your love lights up my world. I cherish every moment with you, my beloved wife 💓💓💓💓 ", paragraph);
+                        }, 3000);
+                    }
+                }, 1000);
+            }, 5000); // Change photo every 5 seconds
+        }
+
+        function typeText(text, element) {
+            var index = 0;
+            var interval = setInterval(function() {
+                if (index < text.length) {
+                    element.innerHTML += text.charAt(index);
+                    index++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 100); // Typing speed
+        }
+
+        function fadeIn(element) {
+            element.style.opacity = 0;
+            var opacity = 0;
+            var text = element.innerText;
+            var index = 0;
+            element.innerText = ''; // Clear the text content
+            var timer = setInterval(function() {
+                if (opacity >= 1 || index >= text.length) {
+                    clearInterval(timer);
+                }
+                element.style.opacity = opacity;
+                opacity += 0.1;
+                // Append one letter at a time to create a typing effect
+                element.innerText += text[index];
+                index++;
+            }, 100);
+        }
+
+        function fadeOut(element) {
+            element.style.opacity = 1;
+            var opacity = 1;
+            var timer = setInterval(function() {
+                if (opacity <= 0) {
+                    clearInterval(timer);
+                }
+                element.style.opacity = opacity;
+                opacity -= 0.1;
+            }, 100);
+        }
+
+        // Hide elements that should be shown only after the play button is clicked
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.boom').style.opacity = '0';
+            document.querySelector('.fullscreen-photo').style.display = 'none';
+            document.getElementById('textSlide').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
